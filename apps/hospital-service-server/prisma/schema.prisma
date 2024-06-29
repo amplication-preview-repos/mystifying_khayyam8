@@ -1,0 +1,79 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Consultation {
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+  appointmentId String?
+  createdAt     DateTime     @default(now())
+  endTime       DateTime?
+  id            String       @id @default(cuid())
+  labRequests   LabRequest[]
+  startTime     DateTime?
+  summary       String?
+  updatedAt     DateTime     @updatedAt
+}
+
+model Doctor {
+  appointments   Appointment[]
+  createdAt      DateTime      @default(now())
+  firstName      String?
+  id             String        @id @default(cuid())
+  lastName       String?
+  specialization String?
+  updatedAt      DateTime      @updatedAt
+}
+
+model LabRequest {
+  consultation   Consultation? @relation(fields: [consultationId], references: [id])
+  consultationId String?
+  createdAt      DateTime      @default(now())
+  id             String        @id @default(cuid())
+  instructions   String?
+  labName        String?
+  labReports     LabReport[]
+  requestDate    DateTime?
+  updatedAt      DateTime      @updatedAt
+}
+
+model LabReport {
+  createdAt    DateTime    @default(now())
+  id           String      @id @default(cuid())
+  labRequest   LabRequest? @relation(fields: [labRequestId], references: [id])
+  labRequestId String?
+  reportDate   DateTime?
+  results      String?
+  updatedAt    DateTime    @updatedAt
+}
+
+model Appointment {
+  appointmentDate DateTime?
+  consultations   Consultation[]
+  createdAt       DateTime               @default(now())
+  doctor          Doctor?                @relation(fields: [doctorId], references: [id])
+  doctorId        String?
+  id              String                 @id @default(cuid())
+  patient         Patient?               @relation(fields: [patientId], references: [id])
+  patientId       String?
+  status          EnumAppointmentStatus?
+  updatedAt       DateTime               @updatedAt
+}
+
+model Patient {
+  appointments Appointment[]
+  createdAt    DateTime      @default(now())
+  email        String?
+  firstName    String?
+  id           String        @id @default(cuid())
+  lastName     String?
+  updatedAt    DateTime      @updatedAt
+}
+
+enum EnumAppointmentStatus {
+  Option1
+}
